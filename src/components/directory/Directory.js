@@ -1,9 +1,9 @@
-import react from "react";
+import React from "react";
 import MenuItem from "../menuitem/MenuItem";
 import Data from "./directory.data";
 import './directory-style.scss';
 
-const menuitem = Data.map(data => <MenuItem key ={data.id} title={data.title} imageUrl= {data.imageUrl} size={data.size}/>)
+const menuitem = Data.map(data => <MenuItem key ={data.id} title={data.title} imageUrl= {data.imageUrl} size={data.size} linkUrl={data.linkUrl}/>)
 
 const Directory = () => 
   
