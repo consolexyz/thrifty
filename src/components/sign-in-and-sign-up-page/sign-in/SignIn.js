@@ -1,71 +1,97 @@
 import React from 'react'
+import { useState, useContext } from 'react';
 import FormInput from '../form-input/FormInput'
 import CustomButton from '../../custombutton/CustomButton'
 import './SignIn.scss'
-import { auth ,signInWithGoogle} from '../../../firebase/firebase.utils';
+import {
+    signInAuthUserWithEmailAndPassword,
+    signInWithGooglePopup,
+  } from '../../../firebase/firebase.utils'
+import { UserContext } from '../../../context/user-context';
+  
 
-class SignIn extends React.Component {
-    constructor(props){
-        super(props)
+const defaultFormFields = {
+    email: '',
+    password: '',
+  };
 
-        this.state={
-            email: '',
-            password: ''
-        }
-    }
 
-    handleSubmit = event =>{
-        event.preventDefault();
-        
-        
-    const { email, password } = this.state;
+const SignIn = () => {
+  const [formFields, setFormFields] = useState(defaultFormFields);
+  const { email, password } = formFields;
+
+  const { setCurrentUser } = useContext(UserContext);
+
+  const resetFormFields = () => {
+    setFormFields(defaultFormFields);
+  };
+
+  const signInWithGoogle = async () => {
+    const { user } = await  signInWithGooglePopup();
+    setCurrentUser(user);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     try {
-     auth.signInWithEmailAndPassword(email, password);
-      this.setState({ email: '', password: '' });
+      const { user } = await signInAuthUserWithEmailAndPassword(
+        email,
+        password
+      );
+      resetFormFields();
+      setCurrentUser(user);
     } catch (error) {
-      console.log(error);
+      switch (error.code) {
+        case 'auth/wrong-password':
+          alert('incorrect password for email');
+          break;
+        case 'auth/user-not-found':
+          alert('no user associated with this email');
+          break;
+        default:
+          console.log(error);
+      }
     }
+  };
 
-    }
-    handleChange = event => {
-        const {value , name} = event.target;
-        this.setState({[name]: value})
-    }
-    render(){
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormFields({ ...formFields, [name]: value });
+  };
+
         return(
             <div className='sign-in'>
                 <h2>I already have an account</h2>
                 <span>Sign in with your email and password</span>
 
-                <form onSubmit={this.handleSubmit}>
+                <form onSubmit={handleSubmit}>
                     <FormInput
                      name = "email"
                      type= "email" 
-                     value={this.state.email}
-                     requried 
-                     handleChange={this.handleChange}
+                     value={email}
+                     requried = "true"
+                     handleChange={handleChange}
                      label ="email"
                      />
                     <FormInput 
                     name = "password" 
                     type= "password"
-                    value={this.state.password} 
-                    handleChange={this.handleChange}
-                    requried
+                    value={password} 
+                    handleChange={handleChange}
+                    requried = "true"
                     label= "password"
                     />
                     <div className='buttons'>
                     <CustomButton type= "submit">SIGN IN </CustomButton>
                     <CustomButton type ="button"  onClick={signInWithGoogle} isGoogleSignIn>
-                        { ' '}
-                        Sign in with Google {' '}
+                        Sign in with Google
                         </CustomButton>
                         </div>
                 </form>
             </div>
         )
     }
-}
 
 export default SignIn

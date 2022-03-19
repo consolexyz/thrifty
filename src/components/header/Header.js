@@ -1,14 +1,25 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { auth } from '../../firebase/firebase.utils';
+import React, { Fragment } from 'react';
+import { useContext } from 'react';
+import { Link} from 'react-router-dom';
+import { UserContext } from '../../context/user-context';
 import CartIcon from "../cart-icon/CartIcon";
-import CartDropdown from '../cart-dropdown/CartDropdown';
+import { signOutUser } from '../../firebase/firebase.utils';
+ import CartDropdown from '../cart-dropdown/CartDropdown';
 import { ReactComponent as Logo } from '../../assets/crown.svg';
 import './header.scss';
 
- const Header = ({currentUser,hidden}) => 
-  (
+ const Header = () => {
+
+  const { currentUser, setCurrentUser } = useContext(UserContext);
+
+  const signOutHandler = async () => {
+    await signOutUser();
+    setCurrentUser(null);
+  };
+
+
+  return(
+    <Fragment>
     <div className='header'>
         <Link to = "/" className ="logo-container" >
             <Logo className ="logo" />
@@ -22,7 +33,7 @@ import './header.scss';
                 </Link>
                 {
                   currentUser ? (
-                  <div className='option' onClick={() => auth.signOut()}>SIGN OUT</div>
+                  <div className='option' onClick={signOutHandler}>SIGN OUT</div>
                   )
                   : (
                   <Link className='option' to ='/signin'>
@@ -32,17 +43,10 @@ import './header.scss';
                 }
                 <CartIcon />
             </div>
-            {
-              hidden ? null :
+             
                <CartDropdown />
-            }
-           
     </div>
+    </Fragment>
   )
-
-  const mapStateToProps = ({user : {currentUser}, cart: {hidden} }) => ({
-    currentUser,
-    hidden
-  });
-
-export default connect(mapStateToProps) (Header);
+          }
+export default Header;

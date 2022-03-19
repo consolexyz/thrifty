@@ -1,7 +1,6 @@
 import React from "react";
 import './menuitem-styles.scss'
-import { withRouter } from "react-router-dom";
-
+// import { withRouter } from "react-router-dom";
 const MenuItem = (props) => (
     <div className={`${props.size} menu-item`}
      onClick={() => props.history.push(`${props.match.url}${props.linkUrl}`)}
@@ -18,4 +17,4 @@ const MenuItem = (props) => (
 )
 
 
-export  default withRouter (MenuItem)
+export  default MenuItem

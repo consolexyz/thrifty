@@ -1,71 +1,74 @@
 import React  from "react";
+import { useState, useContext } from "react";
 import FormInput from "../form-input/FormInput";
 import CustomButton from "../../custombutton/CustomButton";
-import { auth , createUserProfileDocument} from "../../../firebase/firebase.utils";
+import { UserContext } from "../../../context/user-context";
+import {
+  createAuthUserWithEmailAndPassword,
+  createUserDocumentFromAuth,
+} from '../../../firebase/firebase.utils';
+
 import './SignUp.scss';
 
+const defaultFormFields = {
+  displayName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+};
 
-class SignUp extends React.Component {
-    constructor(){
-        super();
+const SignUp = () => {
+  
+  const [formFields, setFormFields] = useState(defaultFormFields);
+  const { displayName, email, password, confirmPassword } = formFields;
+  const { setCurrentUser } = useContext(UserContext);
 
-        this.state ={
-            displayName : '',
-            email: '',
-            password: '',
-            confirmPassword: ''
-        }
-    }
+  const resetFormFields = () => {
+    setFormFields(defaultFormFields);
+  };
 
-    handleSubmit = async event =>{
-        event.preventDefault();
-
-        
-    const { displayName, email, password, confirmPassword } = this.state;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("passwords don't match");
+      alert("passwords do not match");
       return;
     }
 
     try {
-      const { user } = await auth.createUserWithEmailAndPassword(
+      const { user } = await createAuthUserWithEmailAndPassword(
         email,
         password
       );
 
-      await createUserProfileDocument(user, { displayName });
-
-      this.setState({
-        displayName: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-      });
+      await createUserDocumentFromAuth(user, { displayName });
+      resetFormFields();
+      setCurrentUser(user);
     } catch (error) {
-      console.error(error);
+      if (error.code === "auth/email-already-in-use") {
+        alert("Cannot create user, email already in use");
+      } else {
+        console.log("user creation encountered an error", error);
+      }
     }
   };
 
-  handleChange = event => {
+  const handleChange = (event) => {
     const { name, value } = event.target;
 
-    this.setState({ [name]: value });
+    setFormFields({ ...formFields, [name]: value });
   };
 
-    render(){
-
-        const {displayName,email,password,confirmPassword} = this.state;
         return(
             <div className="sign-up">
                 <h2 className=" title"> I do not have a account</h2>
                 <span> Sign up with  your email and password</span>
-                <form className=" sign-up-form" onSubmit={this.handleSubmit}>
+                <form className=" sign-up-form" onSubmit={handleSubmit}>
                     <FormInput
                     type ='text'
                     name = 'displayName'
                     value={displayName}
-                    onChange= {this.handleChange}
+                    onChange= {handleChange}
                     label = "Display Name"
                     required
                     />
@@ -75,7 +78,7 @@ class SignUp extends React.Component {
                     type ='email'
                     name = 'email'
                     value={email}
-                    onChange= {this.handleChange}
+                    onChange= {handleChange}
                     label = "Email"
                     required
                     />
@@ -86,7 +89,7 @@ class SignUp extends React.Component {
                     type ='password'
                     name = 'password'
                     value={password}
-                    onChange= {this.handleChange}
+                    onChange= {handleChange}
                     label = "Password"
                     required
                     />
@@ -97,7 +100,7 @@ class SignUp extends React.Component {
                     type ='password'
                     name = 'confirmPassword'
                     value={confirmPassword}
-                    onChange= {this.handleChange}
+                    onChange= {handleChange}
                     label = "Confirm Password"
                     required
                     />
@@ -107,6 +110,5 @@ class SignUp extends React.Component {
             </div>
         )
     }
-}
 
 export default SignUp
