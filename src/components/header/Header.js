@@ -1,16 +1,19 @@
 import React, { Fragment } from 'react';
 import { useContext } from 'react';
 import { Link} from 'react-router-dom';
+
 import { UserContext } from '../../context/user-context';
+import { CartContext } from '../../context/cart-context';
 import CartIcon from "../cart-icon/CartIcon";
 import { signOutUser } from '../../firebase/firebase.utils';
- import CartDropdown from '../cart-dropdown/CartDropdown';
+import CartDropdown from '../cart-dropdown/CartDropdown';
 import { ReactComponent as Logo } from '../../assets/crown.svg';
 import './header.scss';
 
  const Header = () => {
 
   const { currentUser, setCurrentUser } = useContext(UserContext);
+  const {isCartOpen} = useContext(CartContext)
 
   const signOutHandler = async () => {
     await signOutUser();
@@ -44,7 +47,7 @@ import './header.scss';
                 <CartIcon />
             </div>
              
-               <CartDropdown />
+               {isCartOpen && <CartDropdown />}
     </div>
     </Fragment>
   )
