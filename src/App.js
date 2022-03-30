@@ -7,6 +7,7 @@ import HomePage from './components/homepage/HomePage';
 import Shop from './components/shop/Shop';
 import Header from './components/header/Header';
 import SignInAndSignUpPage from './components/sign-in-and-sign-up-page/SignInAndSignUpPage';
+import Checkout from './components/checkout/Checkout';
 
 const App =()=>{
   const { currentUser } = useContext(UserContext);
@@ -21,6 +22,7 @@ const App =()=>{
             (<Navigate to = '/' />)
              : (<SignInAndSignUpPage />)
              } />
+             <Route path= 'checkout' element={<Checkout />} />
         </Routes>
       </div>
     );
